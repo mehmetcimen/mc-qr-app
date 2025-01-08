@@ -110,7 +110,7 @@ export default function Home() {
           <input
             id="txtQrCode"
             type="text"
-            placeholder="Metin giriniz..."
+            placeholder="Metin,url  giriniz..."
             className="px-6 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 w-full text-lg"
           />
           <button 
@@ -174,14 +174,7 @@ export default function Home() {
           target="_blank"
           rel="noopener noreferrer"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Mehmet ÇİMEN - 2024
+          Mehmet ÇİMEN 
         </a>
       </footer>
     </div>
