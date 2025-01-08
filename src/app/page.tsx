@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react';
-import Image from "next/image";
+
 import { QRCodeSVG } from 'qrcode.react';
 import { Loader2, Download, RotateCcw  } from 'lucide-react';
-import { showSuccess, showError, showWarning, showConfirm } from '@/utils/sweetAlert';
+import {  showWarning } from '@/utils/sweetAlert';
 
 export default function Home() {
   const [qrCodeData, setQrCodeData] = useState('');
