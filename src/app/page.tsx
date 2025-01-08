@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Image from "next/image";
 import { QRCodeSVG } from 'qrcode.react';
-import { Loader2, Download } from 'lucide-react';
+import { Loader2, Download, RotateCcw  } from 'lucide-react';
 import { showSuccess, showError, showWarning, showConfirm } from '@/utils/sweetAlert';
 
 export default function Home() {
@@ -94,6 +94,15 @@ export default function Home() {
     }
   };
 
+
+  const handleReset = () => {
+    setQrCodeData('');
+    const input = document.getElementById('txtQrCode') as HTMLInputElement;
+    if (input) {
+      input.value = '';
+    }
+  };
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
@@ -144,6 +153,13 @@ export default function Home() {
                 >
                   <Download className="w-5 h-5" />
                   PNG İndir
+                </button>
+                <button
+                  onClick={handleReset}
+                  className="flex items-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                >
+                  <RotateCcw  className="w-5 h-5" />
+                  Yeni QR Oluştur
                 </button>
               </div>
             </div>
