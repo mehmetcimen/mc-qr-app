@@ -15,10 +15,9 @@ Bu proje, Next.js kullanılarak geliştirilmiş modern bir QR kod oluşturma ve 
 
 - Next.js 14
 - React.js
-- QR kod kütüphanesi (qrcode.react)
+- QR kod kütüphanesi (QRCodeCanvas.react)
 - Tailwind CSS
 - TypeScript
 
 
-![Proje logosu](/qr-app.png)
-
+[MC QR App](https://mc-qr-app.vercel.app/)
