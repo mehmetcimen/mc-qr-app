@@ -1,182 +1,127 @@
 'use client'
 
 import { useState } from 'react';
-
-import { QRCodeSVG } from 'qrcode.react';
-import { Loader2, Download, RotateCcw  } from 'lucide-react';
-import {  showWarning } from '@/utils/sweetAlert';
+import { QRCodeCanvas } from 'qrcode.react';
+import { Download, RefreshCw } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function Home() {
-  const [qrCodeData, setQrCodeData] = useState('');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [url, setUrl] = useState('');
+  const [qrSize, setQrSize] = useState(256);
 
-  const handleClick = async () => {
-    const inputqrCode = (document.getElementById('txtQrCode') as HTMLInputElement).value;
-    
-    if (!inputqrCode) {
-      showWarning('Lütfen bir metin giriniz.');
+  const downloadQR = () => {
+    if (!url) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Hata!',
+        text: 'Lütfen bir URL veya metin girin.',
+        confirmButtonText: 'Tamam',
+      });
       return;
     }
-
-    setIsLoading(true);
-    try {
-      setQrCodeData(inputqrCode);
-    } catch (error) {
-      console.error('QR kod oluşturma hatası:', error);
-    } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+    const canvas = document.querySelector('canvas');
+    if (canvas) {
+      const pngUrl = canvas
+        .toDataURL('image/png')
+        .replace('image/png', 'image/octet-stream');
+      const downloadLink = document.createElement('a');
+      downloadLink.href = pngUrl;
+      downloadLink.download = 'mc-qr-code.png';
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
     }
   };
 
-  const downloadSVG = () => {
-    const svg = document.querySelector('.qr-code-svg') as SVGSVGElement;
-    if (!svg) return;
-
-    const svgData = new XMLSerializer().serializeToString(svg);
-    const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
-    const url = URL.createObjectURL(svgBlob);
-
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = 'qrcode.svg';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-  };
-
-  const downloadPNG = () => {
-    const svg = document.querySelector('.qr-code-svg') as SVGSVGElement;
-    if (!svg) return;
-
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const size = 250; // QR kod boyutu
-    
-    // Canvas boyutunu ayarla
-    canvas.width = size;
-    canvas.height = size;
-    
-    if (ctx) {
-      // Arka planı beyaz yap
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, size, size);
-      
-      // SVG'yi data URL'e çevir
-      const svgData = new XMLSerializer().serializeToString(svg);
-      const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(svgBlob);
-      
-      const img = document.createElement('img');
-      
-      img.onload = () => {
-        ctx.drawImage(img, 0, 0);
-        URL.revokeObjectURL(url);
-        
-        // Canvas'ı PNG olarak indir
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-          
-          const pngUrl = URL.createObjectURL(blob);
-          const link = document.createElement('a');
-          link.href = pngUrl;
-          link.download = 'qrcode.png';
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(pngUrl);
-        }, 'image/png');
-      };
-      
-      img.src = url;
-    }
-  };
-
-
-  const handleReset = () => {
-    setQrCodeData('');
-    const input = document.getElementById('txtQrCode') as HTMLInputElement;
-    if (input) {
-      input.value = '';
-    }
+  const resetForm = () => {
+    setUrl('');
+    setQrSize(256);
   };
 
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <div className="flex gap-8 w-full max-w-4xl">
-          <input
-            id="txtQrCode"
-            type="text"
-            placeholder="Metin,url  giriniz..."
-            className="px-6 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 w-full text-lg"
-          />
-          <button 
-            onClick={handleClick}
-            disabled={isLoading}
-            className="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Oluştur
-          </button>
+    <main className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-900 p-4 md:p-8">
+      <div className="max-w-4xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 animate-fade-in">
+            MC QR Generator
+          </h1>
+          <p className="text-blue-200 text-lg md:text-xl">
+            Hızlı ve kolay QR kod oluşturucu
+          </p>
         </div>
 
-        <div className="flex flex-col items-center gap-4 w-full">
-          {isLoading ? (
-            <div className="flex flex-col items-center gap-2">
-              <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
-              <p className="text-lg text-gray-600">QR Kod Oluşturuluyor...</p>
-            </div>
-          ) : qrCodeData && (
-            <div className="flex flex-col items-center gap-4">
-              <div className="bg-white p-4 rounded-lg">
-                <QRCodeSVG
-                  value={qrCodeData}
-                  size={250}
-                  className="qr-code-svg"
-                  level="H"
-                  includeMargin={true}
+        {/* Main Content */}
+        <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-6 md:p-8 shadow-2xl">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Input Section */}
+            <div className="space-y-6">
+              <div>
+                <label className="block text-blue-100 mb-2 text-lg">
+                  URL veya Metin
+                </label>
+                <input
+                  type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="https://example.com"
+                  className="w-full px-4 py-3 rounded-lg bg-white/5 border border-blue-300/30 text-white placeholder-blue-300/50 focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
                 />
               </div>
+
+              <div>
+                <label className="block text-blue-100 mb-2 text-lg">
+                  QR Kod Boyutu
+                </label>
+                <input
+                  type="range"
+                  min="128"
+                  max="512"
+                  value={qrSize}
+                  onChange={(e) => setQrSize(Number(e.target.value))}
+                  className="w-full h-2 bg-blue-200 rounded-lg appearance-none cursor-pointer"
+                />
+                <div className="text-blue-200 text-sm mt-1">{qrSize}px</div>
+              </div>
+
               <div className="flex gap-4">
                 <button
-                  onClick={downloadSVG}
-                  className="flex items-center gap-2 px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                  onClick={downloadQR}
+                  className="flex-1 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
                 >
-                  <Download className="w-5 h-5" />
-                  SVG İndir
+                  <Download size={20} />
+                  İndir
                 </button>
                 <button
-                  onClick={downloadPNG}
-                  className="flex items-center gap-2 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                  onClick={resetForm}
+                  className="flex-1 bg-blue-700 hover:bg-blue-800 text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
                 >
-                  <Download className="w-5 h-5" />
-                  PNG İndir
-                </button>
-                <button
-                  onClick={handleReset}
-                  className="flex items-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                >
-                  <RotateCcw  className="w-5 h-5" />
-                  Yeni QR Oluştur
+                  <RefreshCw size={20} />
+                  Sıfırla
                 </button>
               </div>
             </div>
-          )}
-        </div>
-      </main>
 
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://mehmetc.dev"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Mehmet ÇİMEN 
-        </a>
-      </footer>
-    </div>
+            {/* QR Code Display */}
+            <div className="flex items-center justify-center bg-white/5 rounded-xl p-6">
+              <div className="bg-white p-4 rounded-lg shadow-lg">
+                <QRCodeCanvas
+                  value={url || 'https://example.com'}
+                  size={qrSize}
+                  level="H"
+                  includeMargin={true}
+                  className="max-w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center mt-8 text-blue-200">
+          <p>&copy; {new Date().getFullYear()} MC app QR Generator. <a href="https://mehmetc.dev" target="_blank" rel="noopener noreferrer">Mehmet ÇİMEN</a> Tüm hakları saklıdır.</p>
+        </footer>
+      </div>
+    </main>
   );
 }
