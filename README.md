@@ -20,4 +20,5 @@ Bu proje, Next.js kullanılarak geliştirilmiş modern bir QR kod oluşturma ve 
 - TypeScript
 
 
+![Proje logosu](/qr-app.png)
 
